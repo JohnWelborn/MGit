@@ -16,6 +16,9 @@
     <string name="action_manage_private_key">Private Keys</string>
     <string name="action_generate_private_key">Generate Key</string>
     <string name="action_import_private_key">Import Key</string>
+    <string name="action_paste_private_key">Paste Key</string>
+    <string name="label_paste_key_content">Paste private key here</string>
+    <string name="error_paste_key_empty">Filename and key content cannot be empty</string>
     <string name="action_mode_show_private_key">Show private key</string>
     <string name="action_mode_show_public_key">Show public key</string>
     <string name="action_mode_edit_key_password">Edit key password</string>
