@@ -6,17 +6,23 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.ActionMode;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-
-import com.manichord.mgit.ssh.PrivateKeyGenerate;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import com.manichord.mgit.ssh.PrivateKeyGenerate;
 
 import me.sheimi.android.utils.BasicFunctions;
 import me.sheimi.android.utils.FsUtils;
@@ -191,6 +197,38 @@ public class PrivateKeyManageActivity extends FileExplorerActivity implements Ac
             {
                 (new PrivateKeyGenerate()).show(getSupportFragmentManager(), "generate-key");
                 refreshList();
+                return true;
+            }
+        case R.id.action_paste_key:
+            {
+                View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_paste_key, null);
+                EditText filenameEdit = dialogView.findViewById(R.id.pasteKeyFilename);
+                EditText contentEdit = dialogView.findViewById(R.id.pasteKeyContent);
+                new AlertDialog.Builder(this)
+                    .setTitle(R.string.action_paste_private_key)
+                    .setView(dialogView)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String filename = filenameEdit.getText().toString().trim();
+                            String content = contentEdit.getText().toString().trim();
+                            if (TextUtils.isEmpty(filename) || TextUtils.isEmpty(content)) {
+                                Toast.makeText(PrivateKeyManageActivity.this,
+                                        R.string.error_paste_key_empty, Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            File newKey = new File(getRootFolder(), filename);
+                            try (FileOutputStream fos = new FileOutputStream(newKey)) {
+                                fos.write(content.getBytes());
+                                refreshList();
+                            } catch (IOException e) {
+                                Toast.makeText(PrivateKeyManageActivity.this,
+                                        e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    })
+                    .setNegativeButton(R.string.label_cancel, null)
+                    .show();
                 return true;
             }
         }
