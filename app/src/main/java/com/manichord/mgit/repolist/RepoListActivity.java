@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.manichord.mgit.ViewHelperKt;
 import com.manichord.mgit.clone.CloneViewModel;
 import com.manichord.mgit.common.OnActionClickListener;
+import com.manichord.mgit.permissions.PermissionsHelper;
 import com.manichord.mgit.transport.MGitHttpConnectionFactory;
 
 import java.io.File;
@@ -143,8 +144,15 @@ public class RepoListActivity extends SheimiFragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // check everytime on the repo list activity that we still have file access permission
+        // Always handle the legacy WRITE_EXTERNAL_STORAGE request on Android < 11.
         checkAndRequestRequiredPermissions(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        // On Android 11+, only prompt for All Files Access when the configured repo root
+        // is outside the app-specific external directory (e.g. /storage/emulated/0/src).
+        MGitApplication app = (MGitApplication) getApplicationContext();
+        File customRoot = app.getPrefenceHelper().getRepoRoot();
+        if (customRoot != null && PermissionsHelper.Companion.requiresFullStoragePermission(customRoot.getAbsolutePath(), this)) {
+            checkAndRequestFullStoragePermission();
+        }
     }
 
     @Override

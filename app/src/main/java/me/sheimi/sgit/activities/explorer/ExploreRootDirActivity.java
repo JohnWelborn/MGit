@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import java.io.File;
 import java.io.FileFilter;
 
+import com.manichord.mgit.permissions.PermissionsHelper;
 import me.sheimi.sgit.R;
 import me.sheimi.sgit.database.models.Repo;
 
@@ -63,7 +64,11 @@ public class ExploreRootDirActivity extends FileExplorerActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_select_root:
-                Repo.setLocalRepoRoot(this, getCurrentDir());
+                File selectedDir = getCurrentDir();
+                Repo.setLocalRepoRoot(this, selectedDir);
+                if (PermissionsHelper.Companion.requiresFullStoragePermission(selectedDir.getAbsolutePath(), this)) {
+                    checkAndRequestFullStoragePermission();
+                }
                 finish();
                 return true;
         }
