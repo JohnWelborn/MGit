@@ -45,6 +45,7 @@ import me.sheimi.sgit.databinding.ActivityMainBinding;
 import me.sheimi.sgit.dialogs.DummyDialogListener;
 import me.sheimi.sgit.dialogs.ImportLocalRepoDialog;
 import me.sheimi.sgit.repo.tasks.repo.CloneTask;
+import me.sheimi.sgit.repo.tasks.repo.PullTask;
 import me.sheimi.sgit.ssh.PrivateKeyUtils;
 import timber.log.Timber;
 
@@ -161,6 +162,15 @@ public class RepoListActivity extends SheimiFragmentActivity {
         switch (item.getItemId()) {
             case R.id.action_new:
                 showCloneView();
+                return true;
+            case R.id.action_pull_all:
+                List<Repo> repos = Repo.getRepoList(this, RepoDbManager.queryAllRepo());
+                for (Repo repo : repos) {
+                    if (repo.getRemoteURL() != null && !repo.getRemoteURL().isEmpty()) {
+                        new PullTask(repo, "origin", false, null).executeTask();
+                    }
+                }
+                Toast.makeText(this, R.string.pull_msg_init, Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.action_import_repo:
                 intent = new Intent(this, ImportRepositoryActivity.class);

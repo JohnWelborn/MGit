@@ -11,6 +11,7 @@
     <string name="action_clone">Clone</string>
     <string name="action_import_repo">Import Repository</string>
     <string name="action_settings">Settings</string>
+    <string name="action_pull_all">Pull All</string>
     <string name="action_mode_rename_key">Rename key</string>
     <string name="action_mode_rename_branch">Rename branch</string>
     <string name="action_manage_private_key">Private Keys</string>
