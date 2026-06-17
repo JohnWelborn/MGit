@@ -28,12 +28,17 @@ class PermissionsHelper {
          */
         fun requiresFullStoragePermission(path: String, context: Context): Boolean {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return false
-            val target = File(path).canonicalPath
-            val appExternal = context.getExternalFilesDir(null)?.canonicalPath
-            val appInternal = context.filesDir.canonicalPath
-            if (appExternal != null && target.startsWith(appExternal)) return false
-            if (target.startsWith(appInternal)) return false
-            return true
+            return try {
+                val target = File(path).canonicalPath
+                val appExternal = context.getExternalFilesDir(null)?.canonicalPath
+                val appInternal = context.filesDir.canonicalPath
+                fun isInside(parent: String) = target == parent || target.startsWith(parent + "/")
+                if (appExternal != null && isInside(appExternal)) return false
+                if (isInside(appInternal)) return false
+                true
+            } catch (e: java.io.IOException) {
+                true
+            }
         }
     }
 }
