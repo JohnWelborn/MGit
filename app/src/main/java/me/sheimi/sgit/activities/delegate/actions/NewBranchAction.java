@@ -37,7 +37,9 @@ public class NewBranchAction extends RepoAction {
         }
         @Override
         public void onPostExecute(Boolean isSuccess) {
-            mActivity.reset(mBranchName);
+            if (isSuccess) {
+                mActivity.reset(mBranchName);
+            }
         }
     }
 }
