@@ -236,7 +236,7 @@ public class SheimiFragmentActivity extends AppCompatActivity {
 
     public void promptForPassword(OnPasswordEntered onPasswordEntered,
                                   int errorId) {
-        promptForPassword(onPasswordEntered, errorId);
+        promptForPassword(onPasswordEntered, getString(errorId));
     }
 
     public void promptForPassword(final OnPasswordEntered onPasswordEntered,
