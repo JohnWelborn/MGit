@@ -1,6 +1,6 @@
 ## Commit messages
 
-Do NOT include any reference to Claude, Anthropic, or AI in commit messages, PR titles, PR bodies, code comments, or any other artifact pushed to the repository.
+Do NOT include any reference to Claude, Anthropic, or AI in commit messages, PR titles, PR bodies, code comments, or any other artifact pushed to the repository. This includes claude.ai session URLs, "Generated with Claude Code" footers, and Co-Authored-By lines mentioning Claude or Anthropic.
 
 ## Release process
 
