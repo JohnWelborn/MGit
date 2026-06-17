@@ -68,6 +68,7 @@ public class FetchTask extends RepoRemoteOpTask {
         final FetchCommand fetchCommand = git.fetch()
                 .setProgressMonitor(new BasicProgressMonitor())
                 .setTransportConfigCallback(new SgitTransportCallback())
+                .setRemoveDeletedRefs(true)
                 .setRemote(remote);
 
         setCredentials(fetchCommand);
