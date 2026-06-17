@@ -35,12 +35,15 @@ jobs:
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > $RUNNER_TEMP/mgit-release.jks
 
       - name: Build release APK
+        env:
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           ./gradlew --no-daemon assembleRelease \
             -Pspecial \
-            -Palias=${{ secrets.KEY_ALIAS }} \
-            -Ppassword=${{ secrets.KEY_PASSWORD }} \
-            -Pkeystore=$RUNNER_TEMP/mgit-release.jks
+            -Palias="$KEY_ALIAS" \
+            -Ppassword="$KEY_PASSWORD" \
+            -Pkeystore="$RUNNER_TEMP/mgit-release.jks"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
