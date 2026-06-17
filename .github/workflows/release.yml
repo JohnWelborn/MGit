@@ -31,12 +31,20 @@ jobs:
       - name: Accept Android SDK licenses
         run: yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
-      - name: Build debug APK
-        run: ./gradlew --no-daemon assembleDebug
+      - name: Decode keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > $RUNNER_TEMP/mgit-release.jks
+
+      - name: Build release APK
+        run: |
+          ./gradlew --no-daemon assembleRelease \
+            -Pspecial \
+            -Palias=${{ secrets.KEY_ALIAS }} \
+            -Ppassword=${{ secrets.KEY_PASSWORD }} \
+            -Pkeystore=$RUNNER_TEMP/mgit-release.jks
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}
-          files: app/build/outputs/apk/debug/*.apk
+          files: app/build/outputs/apk/release/*.apk
           generate_release_notes: true
