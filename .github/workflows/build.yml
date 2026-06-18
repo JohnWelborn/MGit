@@ -32,11 +32,16 @@ jobs:
       - name: Build debug APK
         run: ./gradlew --no-daemon assembleDebug
 
+      - name: Rename debug APK
+        run: |
+          VERSION=$(grep versionName app/build.gradle | sed 's/.*"\(.*\)".*/\1/')
+          mv app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/mgit-${VERSION}-debug.apk
+
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: app/build/outputs/apk/debug/mgit-*-debug.apk
 
       - name: Post or update PR comment with artifact link
         if: github.event_name == 'pull_request'
