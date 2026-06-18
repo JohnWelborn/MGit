@@ -13,6 +13,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions:
+      pull-requests: write
+
     steps:
       - uses: actions/checkout@v4
 
@@ -29,8 +32,42 @@ jobs:
       - name: Build debug APK
         run: ./gradlew --no-daemon assembleDebug
 
+      - name: Rename debug APK
+        run: |
+          VERSION=$(grep -m1 '^\s*versionName "' app/build.gradle | sed 's/.*"\(.*\)".*/\1/')
+          mv app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/mgit-${VERSION}-debug.apk
+
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: app/build/outputs/apk/debug/mgit-*-debug.apk
+
+      - name: Post or update PR comment with artifact link
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: { artifacts } } = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner, repo: context.repo.repo, run_id: ${{ github.run_id }}
+            });
+            const artifact = artifacts.find(a => a.name === 'debug-apk');
+            const url = `https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${artifact.id}`;
+            const marker = '<!-- debug-apk-comment -->';
+            const body = `${marker}\n📦 **Debug APK:** [Download](${url})`;
+            const pr = context.payload.pull_request.number;
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner, repo: context.repo.repo, issue_number: pr
+            });
+            const existing = comments.data.find(c => c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                comment_id: existing.id, body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: pr, body
+              });
+            }

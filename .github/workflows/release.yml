@@ -46,10 +46,12 @@ jobs:
             -Pkeystore="$RUNNER_TEMP/mgit-release.jks"
 
       - name: Rename APK
-        run: mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/mgit.apk
+        run: |
+          VERSION=$(grep -m1 '^\s*versionName "' app/build.gradle | sed 's/.*"\(.*\)".*/\1/')
+          mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/mgit-${VERSION}.apk
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}
-          files: app/build/outputs/apk/release/mgit.apk
+          files: app/build/outputs/apk/release/mgit-*.apk

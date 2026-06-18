@@ -116,35 +116,34 @@ public class SheimiFragmentActivity extends AppCompatActivity {
     }
 
     protected void checkAndRequestRequiredPermissions(Context context, String legacyPermission) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (PermissionsHelper.Companion.canReadStorage(context) != true) {
-                showMessageDialog(
-                    R.string.dialog_access_all_files_title,
-                    getString(R.string.dialog_access_all_files_msg),
-                    R.string.label_ok,
-                    R.string.label_cancel,
-                    (dialogInterface, i) -> {
-                        try {
-                            Uri uri = Uri.fromParts("package", getPackageName(), null);
-                            Intent permissionAllowIntent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, uri);
-                            startActivity(permissionAllowIntent);
-                        } catch (ActivityNotFoundException e) {
-                            Log.e("SheimiFragmentActivity", "could not start activity to request all files permission");
-                            showMessageDialog(R.string.dialog_error_title, getString(R.string.error_couldnt_display_all_files_permission));
-                        }
-                    },
-                    (dialogInterface, i) -> {
-                        // can't go on without all files permission
-                        finish();
-                    }
-                );
-
-            }
-        } else {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             if (ContextCompat.checkSelfPermission(this, legacyPermission) != PackageManager.PERMISSION_GRANTED) {
-                // Permission is not granted, so request it from user
                 ActivityCompat.requestPermissions(this, new String[]{legacyPermission}, MGIT_PERMISSIONS_REQUEST);
             }
+        }
+        // On Android 11+ use checkAndRequestFullStoragePermission() when a path outside
+        // app-specific storage is needed.
+    }
+
+    protected void checkAndRequestFullStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !PermissionsHelper.Companion.isExternalStorageManager()) {
+            showMessageDialog(
+                R.string.dialog_access_all_files_title,
+                getString(R.string.dialog_access_all_files_msg),
+                R.string.label_ok,
+                R.string.label_cancel,
+                (dialogInterface, i) -> {
+                    try {
+                        Uri uri = Uri.fromParts("package", getPackageName(), null);
+                        Intent permissionAllowIntent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, uri);
+                        startActivity(permissionAllowIntent);
+                    } catch (ActivityNotFoundException e) {
+                        Log.e("SheimiFragmentActivity", "could not start activity to request all files permission");
+                        showMessageDialog(R.string.dialog_error_title, getString(R.string.error_couldnt_display_all_files_permission));
+                    }
+                },
+                (dialogInterface, i) -> { /* user declined, app continues with default storage */ }
+            );
         }
     }
 
@@ -237,7 +236,7 @@ public class SheimiFragmentActivity extends AppCompatActivity {
 
     public void promptForPassword(OnPasswordEntered onPasswordEntered,
                                   int errorId) {
-        promptForPassword(onPasswordEntered, errorId);
+        promptForPassword(onPasswordEntered, getString(errorId));
     }
 
     public void promptForPassword(final OnPasswordEntered onPasswordEntered,
