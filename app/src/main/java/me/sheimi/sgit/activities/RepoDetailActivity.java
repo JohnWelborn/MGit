@@ -25,6 +25,7 @@ import android.widget.TextView;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.manichord.mgit.repodetail.RepoDetailViewModel;
+import com.manichord.mgit.tasks.Credentials;
 
 import me.sheimi.android.activities.SheimiFragmentActivity;
 import me.sheimi.android.utils.BasicFunctions;
@@ -36,7 +37,6 @@ import me.sheimi.sgit.fragments.BaseFragment;
 import me.sheimi.sgit.fragments.CommitsFragment;
 import me.sheimi.sgit.fragments.FilesFragment;
 import me.sheimi.sgit.fragments.StatusFragment;
-import me.sheimi.sgit.repo.tasks.SheimiAsyncTask.AsyncTaskCallback;
 
 public class RepoDetailActivity extends SheimiFragmentActivity {
 
@@ -140,6 +140,42 @@ public class RepoDetailActivity extends SheimiFragmentActivity {
         });
         mRepoDetailViewModel.getCheckedOutName().observe(this, name -> {
             if (name != null) reset(name);
+        });
+        mRepoDetailViewModel.getProgress().observe(this, progress -> {
+            if (progress == null) {
+                Animation anim = AnimationUtils.loadAnimation(this, R.anim.fade_out);
+                mPullProgressContainer.setAnimation(anim);
+                mPullProgressContainer.setVisibility(View.GONE);
+            } else {
+                if (mPullProgressContainer.getVisibility() != View.VISIBLE) {
+                    Animation anim = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+                    mPullProgressContainer.setAnimation(anim);
+                    mPullProgressContainer.setVisibility(View.VISIBLE);
+                }
+                mPullMsg.setText(progress.getTitle());
+                mPullLeftHint.setText(progress.getLeftHint());
+                mPullRightHint.setText(progress.getRightHint());
+                mPullProgressBar.setProgress(progress.getPercent());
+            }
+        });
+        mRepoDetailViewModel.getPushResultMsg().observe(this, msg -> {
+            if (msg == null) return;
+            showMessageDialog(R.string.dialog_push_result, msg);
+            mRepoDetailViewModel.clearPushResultMsg();
+        });
+        mRepoDetailViewModel.getCredentialRequest().observe(this, request -> {
+            if (request == null) return;
+            promptForPassword(new SheimiFragmentActivity.OnPasswordEntered() {
+                @Override
+                public void onClicked(String username, String password, boolean savePassword) {
+                    request.resolve(new Credentials(username, password, savePassword));
+                }
+                @Override
+                public void onCanceled() {
+                    request.resolve(null);
+                }
+            }, (String) null);
+            mRepoDetailViewModel.clearCredentialRequest();
         });
     }
 
@@ -299,54 +335,6 @@ public class RepoDetailActivity extends SheimiFragmentActivity {
     public void error() {
         finish();
         showToastMessage(R.string.error_unknown);
-    }
-
-    public class ProgressCallback implements AsyncTaskCallback {
-
-        private int mInitMsg;
-
-        public ProgressCallback(int initMsg) {
-            mInitMsg = initMsg;
-        }
-
-        @Override
-        public void onPreExecute() {
-            mPullMsg.setText(mInitMsg);
-            Animation anim = AnimationUtils.loadAnimation(
-                    RepoDetailActivity.this, R.anim.fade_in);
-            mPullProgressContainer.setAnimation(anim);
-            mPullProgressContainer.setVisibility(View.VISIBLE);
-            mPullLeftHint.setText(R.string.progress_left_init);
-            mPullRightHint.setText(R.string.progress_right_init);
-        }
-
-        @Override
-        public void onProgressUpdate(String... progress) {
-            mPullMsg.setText(progress[0]);
-            mPullLeftHint.setText(progress[1]);
-            mPullRightHint.setText(progress[2]);
-            mPullProgressBar.setProgress(Integer.parseInt(progress[3]));
-        }
-
-        @Override
-        public void onPostExecute(Boolean isSuccess) {
-            Animation anim = AnimationUtils.loadAnimation(
-                    RepoDetailActivity.this, R.anim.fade_out);
-            mPullProgressContainer.setAnimation(anim);
-            mPullProgressContainer.setVisibility(View.GONE);
-            reset();
-        }
-
-        @Override
-        public boolean doInBackground(Void... params) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                return false;
-            }
-            return true;
-        }
-
     }
 
     @Override

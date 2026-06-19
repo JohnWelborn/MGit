@@ -46,7 +46,6 @@ import me.sheimi.sgit.databinding.ActivityMainBinding;
 import me.sheimi.sgit.dialogs.DummyDialogListener;
 import me.sheimi.sgit.dialogs.ImportLocalRepoDialog;
 import me.sheimi.sgit.repo.tasks.repo.CloneTask;
-import me.sheimi.sgit.repo.tasks.repo.PullTask;
 import me.sheimi.sgit.ssh.PrivateKeyUtils;
 import timber.log.Timber;
 
@@ -54,6 +53,7 @@ public class RepoListActivity extends SheimiFragmentActivity {
 
     private Context mContext;
     private RepoListAdapter mRepoListAdapter;
+    private RepoListViewModel mRepoListViewModel;
 
     private static final int REQUEST_IMPORT_REPO = 0;
     private boolean mStoragePermissionPromptShown = false;
@@ -68,8 +68,9 @@ public class RepoListActivity extends SheimiFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        RepoListViewModel viewModel = new ViewModelProvider(this).get(RepoListViewModel.class);
+        mRepoListViewModel = new ViewModelProvider(this).get(RepoListViewModel.class);
         CloneViewModel cloneViewModel = new ViewModelProvider(this).get(CloneViewModel.class);
+        RepoListViewModel viewModel = mRepoListViewModel;
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         binding.setLifecycleOwner(this);
@@ -178,11 +179,13 @@ public class RepoListActivity extends SheimiFragmentActivity {
                 return true;
             case R.id.action_pull_all:
                 List<Repo> repos = Repo.getRepoList(this, RepoDbManager.queryAllRepo());
+                List<Repo> reposWithRemote = new java.util.ArrayList<>();
                 for (Repo repo : repos) {
                     if (repo.getRemoteURL() != null && !repo.getRemoteURL().isEmpty()) {
-                        new PullTask(repo, "origin", false, null).executeTask();
+                        reposWithRemote.add(repo);
                     }
                 }
+                mRepoListViewModel.pullAll(reposWithRemote);
                 Toast.makeText(this, R.string.pull_msg_init, Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.action_import_repo:
