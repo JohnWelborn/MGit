@@ -4,8 +4,6 @@ import android.content.DialogInterface;
 import me.sheimi.sgit.R;
 import me.sheimi.sgit.activities.RepoDetailActivity;
 import me.sheimi.sgit.database.models.Repo;
-import me.sheimi.sgit.repo.tasks.SheimiAsyncTask.AsyncTaskPostCallback;
-import me.sheimi.sgit.repo.tasks.repo.ResetCommitTask;
 
 public class ResetAction extends RepoAction {
 
@@ -27,13 +25,6 @@ public class ResetAction extends RepoAction {
     }
 
     public void reset() {
-        ResetCommitTask resetTask = new ResetCommitTask(mRepo,
-                new AsyncTaskPostCallback() {
-                    @Override
-                    public void onPostExecute(Boolean isSuccess) {
-                        mActivity.reset();
-                    }
-                });
-        resetTask.executeTask();
+        mActivity.getRepoDetailViewModel().resetCommit(mRepo);
     }
 }

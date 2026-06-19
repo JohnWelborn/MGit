@@ -10,7 +10,7 @@ abstract class BaseViewModel : ViewModel() {
     private val _error = MutableStateFlow<ErrorState?>(null)
     val error: StateFlow<ErrorState?> = _error.asStateFlow()
 
-    fun emitError(state: ErrorState) { _error.value = state }
+    open fun emitError(state: ErrorState) { _error.value = state }
     fun clearError() { _error.value = null }
 
     data class ErrorState(

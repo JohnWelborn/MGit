@@ -3,11 +3,16 @@ package com.manichord.mgit.clone
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import com.manichord.mgit.tasks.repo.InitLocalOperation
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.sheimi.sgit.MGitApplication
 import me.sheimi.sgit.R
+import me.sheimi.sgit.database.RepoContract
 import me.sheimi.sgit.database.models.Repo
 import me.sheimi.sgit.repo.tasks.repo.CloneTask
-import me.sheimi.sgit.repo.tasks.repo.InitLocalTask
 import timber.log.Timber
 
 class CloneViewModel(application: Application) : AndroidViewModel(application) {
@@ -61,8 +66,18 @@ class CloneViewModel(application: Application) : AndroidViewModel(application) {
 
     fun initLocalRepo() {
         val repo = Repo.createRepo(localRepoName.value, "local repository", "")
-        val task = InitLocalTask(repo)
-        task.executeTask()
+        viewModelScope.launch {
+            runCatching {
+                withContext(Dispatchers.IO) {
+                    InitLocalOperation.execute(repo)
+                    repo.updateLatestCommitInfo()
+                    repo.updateStatus(RepoContract.REPO_STATUS_NULL)
+                }
+            }.onFailure { e ->
+                Timber.e(e, "Failed to init local repo")
+                withContext(Dispatchers.IO) { repo.deleteRepoSync() }
+            }
+        }
     }
 
     private fun stripUrlFromRepo(remoteUrl: String): String {

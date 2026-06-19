@@ -1,6 +1,8 @@
 package me.sheimi.sgit.activities.delegate;
 
-import com.manichord.mgit.tasks.repo.UpdateIndexTask;
+import com.manichord.mgit.repodetail.RepoDetailViewModel;
+import com.manichord.mgit.tasks.repo.DeleteType;
+import com.manichord.mgit.tasks.repo.UpdateIndexOperation;
 
 import org.eclipse.jgit.lib.Ref;
 
@@ -30,22 +32,19 @@ import me.sheimi.sgit.activities.delegate.actions.RepoAction;
 import me.sheimi.sgit.activities.delegate.actions.ResetAction;
 import me.sheimi.sgit.database.models.Repo;
 import me.sheimi.sgit.repo.tasks.SheimiAsyncTask.AsyncTaskPostCallback;
-import me.sheimi.sgit.repo.tasks.repo.AddToStageTask;
-import me.sheimi.sgit.repo.tasks.repo.CheckoutFileTask;
 import me.sheimi.sgit.repo.tasks.repo.CheckoutTask;
-import me.sheimi.sgit.repo.tasks.repo.DeleteFileFromRepoTask;
 import me.sheimi.sgit.repo.tasks.repo.MergeTask;
-
-import static me.sheimi.sgit.repo.tasks.repo.DeleteFileFromRepoTask.DeleteOperationType;
 
 public class RepoOperationDelegate {
     private Repo mRepo;
     private RepoDetailActivity mActivity;
+    private RepoDetailViewModel mViewModel;
     private ArrayList<RepoAction> mActions = new ArrayList<>();
 
-    public RepoOperationDelegate(Repo repo, RepoDetailActivity activity) {
+    public RepoOperationDelegate(Repo repo, RepoDetailActivity activity, RepoDetailViewModel viewModel) {
         mRepo = repo;
         mActivity = activity;
+        mViewModel = viewModel;
         initActions();
     }
 
@@ -112,39 +111,23 @@ public class RepoOperationDelegate {
     }
 
     public void addToStage(String filepath) {
-        String relative = getRelativePath(filepath);
-        AddToStageTask addToStageTask = new AddToStageTask(mRepo, relative);
-        addToStageTask.executeTask();
+        mViewModel.addToStage(mRepo, getRelativePath(filepath));
     }
 
     public void checkoutFile(String filepath) {
-        String relative = getRelativePath(filepath);
-        CheckoutFileTask task = new CheckoutFileTask(mRepo, relative, null);
-        task.executeTask();
+        mViewModel.checkoutFile(mRepo, getRelativePath(filepath));
     }
 
-    public void deleteFileFromRepo(String filepath,DeleteOperationType deleteOperationType) {
-        String relative = getRelativePath(filepath);
-        DeleteFileFromRepoTask task = new DeleteFileFromRepoTask(mRepo,
-                relative,deleteOperationType, new AsyncTaskPostCallback() {
-                    @Override
-                    public void onPostExecute(Boolean isSuccess) {
-                        // TODO Auto-generated method stub
-                        mActivity.getFilesFragment().reset();
-                    }
-                });
-        task.executeTask();
+    public void deleteFileFromRepo(String filepath, DeleteType deleteType) {
+        mViewModel.deleteFile(mRepo, getRelativePath(filepath), deleteType);
+    }
+
+    public void updateIndex(final String filePath, final int newMode) {
+        mViewModel.updateIndex(mRepo, getRelativePath(filePath), newMode);
     }
 
     private String getRelativePath(String filepath) {
         File base = mRepo.getDir();
         return FsUtils.getRelativePath(new File(filepath), base);
-    }
-
-
-    public void updateIndex(final String mFilePath, final int newMode) {
-        String relative = getRelativePath(mFilePath);
-        UpdateIndexTask task = new UpdateIndexTask(mRepo, relative, newMode);
-        task.executeTask();
     }
 }

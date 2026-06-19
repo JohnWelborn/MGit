@@ -22,7 +22,12 @@ import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import androidx.lifecycle.ViewModelProvider;
+
+import com.manichord.mgit.repodetail.RepoDetailViewModel;
+
 import me.sheimi.android.activities.SheimiFragmentActivity;
+import me.sheimi.android.utils.BasicFunctions;
 import me.sheimi.sgit.R;
 import me.sheimi.sgit.activities.delegate.RepoOperationDelegate;
 import me.sheimi.sgit.adapters.RepoOperationsAdapter;
@@ -60,6 +65,7 @@ public class RepoDetailActivity extends SheimiFragmentActivity {
     private TextView mPullRightHint;
 
     private RepoOperationDelegate mRepoDelegate;
+    private RepoDetailViewModel mRepoDetailViewModel;
 
     private static final int FILES_FRAGMENT_INDEX = 0;
     private static final int COMMITS_FRAGMENT_INDEX = 1;
@@ -92,11 +98,13 @@ public class RepoDetailActivity extends SheimiFragmentActivity {
             return;
         }
         repoInit();
+        mRepoDetailViewModel = new ViewModelProvider(this).get(RepoDetailViewModel.class);
         setTitle(mRepo.getDiaplayName());
         setContentView(R.layout.activity_repo_detail);
         setupActionBar();
         createFragments();
         setupViewPager();
+        setupViewModelObservers();
         setupPullProgressView();
         setupDrawer();
         mCommitNameButton = (Button) findViewById(R.id.commitName);
@@ -117,9 +125,28 @@ public class RepoDetailActivity extends SheimiFragmentActivity {
         resetCommitButtonName(branchName);
     }
 
+    private void setupViewModelObservers() {
+        mRepoDetailViewModel.getRepoChanged().observe(this, v -> reset());
+        mRepoDetailViewModel.getFilesChanged().observe(this, v -> mFilesFragment.reset());
+        mRepoDetailViewModel.getToast().observe(this, this::showToastMessage);
+        mRepoDetailViewModel.getErrorEvent().observe(this, state -> {
+            if (state == null) return;
+            if (state.getException() != null) {
+                BasicFunctions.showException(this, state.getException(), state.getTitleRes(), state.getErrorRes());
+            } else {
+                BasicFunctions.showError(this, state.getTitleRes(), state.getErrorRes());
+            }
+            mRepoDetailViewModel.clearError();
+        });
+    }
+
+    public RepoDetailViewModel getRepoDetailViewModel() {
+        return mRepoDetailViewModel;
+    }
+
     public RepoOperationDelegate getRepoDelegate() {
         if (mRepoDelegate == null) {
-            mRepoDelegate = new RepoOperationDelegate(mRepo, this);
+            mRepoDelegate = new RepoOperationDelegate(mRepo, this, mRepoDetailViewModel);
         }
         return mRepoDelegate;
     }
