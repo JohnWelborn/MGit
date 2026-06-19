@@ -7,6 +7,7 @@ and a fork of the unmaintained [maks/MGit](https://github.com/maks/MGit).
 
 ## Changes in this fork
 
+* All Files Access permission is now optional, which may enable Play Store distribution (discussed in [maks/MGit#733](https://github.com/maks/MGit/issues/733))
 * **Pull All** button on the main toolbar — fetch/pull every repo at once
 * **Paste Key** option in the private key manager
 * Fetch prunes stale remote-tracking branches automatically (fixes [maks/MGit#749](https://github.com/maks/MGit/issues/749))

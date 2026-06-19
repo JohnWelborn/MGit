@@ -516,6 +516,9 @@ public class Repo implements Comparable<Repo>, Serializable {
     public static void setLocalRepoRoot(Context context, File repoRoot) {
         PreferenceHelper prefs = ((MGitApplication) context.getApplicationContext()).getPrefenceHelper();
         File oldRoot = prefs.getRepoRoot();
+        if (oldRoot == null) {
+            oldRoot = new File(context.getExternalFilesDir(null), REPO_DIR);
+        }
         prefs.setRepoRoot(repoRoot.getAbsolutePath());
 
         // need to make any existing "internal" repos "external" so that their paths are still correct

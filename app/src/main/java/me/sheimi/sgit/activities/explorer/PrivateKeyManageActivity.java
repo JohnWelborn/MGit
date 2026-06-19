@@ -204,6 +204,7 @@ public class PrivateKeyManageActivity extends FileExplorerActivity implements Ac
                 View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_paste_key, null);
                 EditText filenameEdit = dialogView.findViewById(R.id.pasteKeyFilename);
                 EditText contentEdit = dialogView.findViewById(R.id.pasteKeyContent);
+                filenameEdit.setText("id_rsa");
                 new AlertDialog.Builder(this)
                     .setTitle(R.string.action_paste_private_key)
                     .setView(dialogView)
