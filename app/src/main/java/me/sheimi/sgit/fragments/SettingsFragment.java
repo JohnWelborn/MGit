@@ -9,6 +9,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import androidx.core.app.TaskStackBuilder;
 
 import java.io.File;
@@ -43,6 +44,13 @@ public class SettingsFragment extends PreferenceFragment {
 
         Preference repoRootPref = findPreference(getString(R.string.pref_key_repo_root_location));
         updateRepoRootSummary(repoRootPref);
+
+        Preference noticePref = findPreference("pref_key_repo_location_permission_notice");
+        if (noticePref != null) {
+            noticePref.setSummary(Html.fromHtml(
+                "<font color=\"#D32F2F\">" + getString(R.string.pref_repo_location_permission_notice) + "</font>"));
+        }
+
         updatePermissionNoticeVisibility();
         repoRootPref.setOnPreferenceClickListener(pref -> {
             SheimiFragmentActivity activity = (SheimiFragmentActivity) getActivity();

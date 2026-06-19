@@ -161,6 +161,8 @@
     <string name="preference_repo_location">Root storage location for repos</string>
     <string name="pref_repo_location_permission_notice">Changing this to a path outside the default requires the All Files Access permission (Android 11+).</string>
     <string name="pref_category_title_general">General</string>
+    <string name="pref_category_title_appearance">Appearance</string>
+    <string name="pref_category_title_storage">Storage</string>
     <string name="pref_key_repo_root_location" translatable="false">repo_root_path</string>
     <string name="action_select_root_dir">Select as Root folder</string>
     <string name="action_create_new_dir">Create new folder</string>
