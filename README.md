@@ -13,6 +13,7 @@ and a fork of the unmaintained [maks/MGit](https://github.com/maks/MGit).
 * Fetch prunes stale remote-tracking branches automatically (fixes [maks/MGit#749](https://github.com/maks/MGit/issues/749))
 * Compatible with Android 14+ (fixes [maks/MGit#733](https://github.com/maks/MGit/issues/733))
 * Build modernized for JDK 21, AGP 8.x, and SDK 34, with GitHub Actions replacing Travis CI
+* Background operations (clone, fetch, pull, push, commit, etc.) migrated from deprecated AsyncTask to Kotlin Coroutines (addresses [maks/MGit#277](https://github.com/maks/MGit/issues/277))
 
 ## Notes
 
