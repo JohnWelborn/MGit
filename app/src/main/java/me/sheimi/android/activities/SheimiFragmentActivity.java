@@ -362,11 +362,5 @@ public class SheimiFragmentActivity extends AppCompatActivity {
         mImageLoader.init(configuration);
     }
 
-    public ImageLoader getImageLoader() {
-        if (mImageLoader == null || !mImageLoader.isInited()) {
-            setupImageLoader();
-        }
-        return mImageLoader;
-    }
     /* ImageCache End */
 }
