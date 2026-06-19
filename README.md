@@ -2,33 +2,22 @@
 
 MGit is a Git client Android App.
 
-This is a continuation of [the SGit project](https://github.com/sheimi/SGit).
+This is a continuation of [the SGit project](https://github.com/sheimi/SGit)
+and a fork of the unmaintained [maks/MGit](https://github.com/maks/MGit).
 
-[<img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png"
-      alt="Get it on Google Play"
-      height="80">](https://play.google.com/store/apps/details?id=com.manichord.mgit)
-[<img src="https://f-droid.org/badge/get-it-on.png"
-      alt="Get it on F-Droid"
-      height="80">](https://f-droid.org/packages/com.manichord.mgit)
+## Changes in this fork
+
+* **Pull All** button on the main toolbar — fetch/pull every repo at once
+* **Paste Key** option in the private key manager
+* Fetch prunes stale remote-tracking branches automatically (fixes [maks/MGit#749](https://github.com/maks/MGit/issues/749))
+* Compatible with Android 14+ (fixes [maks/MGit#733](https://github.com/maks/MGit/issues/733))
+* Build modernized for JDK 21, AGP 8.x, and SDK 34, with GitHub Actions replacing Travis CI
 
 ## Notes
 
-[![Build Status](https://travis-ci.org/maks/MGit.svg?branch=master)](https://travis-ci.org/maks/MGit)
-
-[![Join the chat at https://gitter.im/MGit-Android/Lobby](https://badges.gitter.im/MGit-Android/Lobby.svg)](https://gitter.im/MGit-Android/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-[![Translate - with Stringlate](https://img.shields.io/badge/translate%20with-stringlate-green.svg)](https://lonamiwebs.github.io/stringlate/translate?git=https%3A%2F%2Fgithub.com%2Fmaks%2FMGit)
-
 * If you encounter any issues (bugs, crashes, etc.) and want to help improve this project, please open an issue on [GitHub](https://github.com/maks/MGit/issues/new) describing: what the issues are; and how they were caused, to allow for re-creation and fixing of bugs.
 * This app requires minimum of for Android v5.0
-
-### Editing Files
-
-As of version 1.5.7, MGit no longer provides an internal texteditor, instead if you wish to edit files, you will need to have an editor app installed. 
-
-An open source editor that has been tested to work with MGit is ["Viper Exit, nee Turbo Editor"](https://github.com/maks/viper-edit)
-
-but others that support File Providers should also work.
+* **Editing Files:** MGit does not include a text editor. To edit files, install an external editor app that supports File Providers, such as [Viper Edit](https://github.com/maks/viper-edit).
 
 ## Supported Features
 
@@ -90,10 +79,6 @@ repositories in the same local directory (can be changed in MGit settings)
 #### HTTP(S) URLs
 
 * HTTP(S) URL: `https://server_name/path/to/repo`
-
-## ToDo List
-
-[Future enhancements and bugs are tracked here on Github](https://github.com/maks/MGit/issues).
 
 ## License
 
