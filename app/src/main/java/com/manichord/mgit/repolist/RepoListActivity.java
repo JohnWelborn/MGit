@@ -3,7 +3,7 @@ package com.manichord.mgit.repolist;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -68,8 +68,8 @@ public class RepoListActivity extends SheimiFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        RepoListViewModel viewModel = ViewModelProviders.of(this).get(RepoListViewModel.class);
-        CloneViewModel cloneViewModel = ViewModelProviders.of(this).get(CloneViewModel.class);
+        RepoListViewModel viewModel = new ViewModelProvider(this).get(RepoListViewModel.class);
+        CloneViewModel cloneViewModel = new ViewModelProvider(this).get(CloneViewModel.class);
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         binding.setLifecycleOwner(this);
