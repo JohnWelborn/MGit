@@ -49,6 +49,7 @@ public class SettingsFragment extends PreferenceFragment {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
                     && !PermissionsHelper.Companion.isExternalStorageManager()) {
                 activity.checkAndRequestFullStoragePermission();
+                return true;
             }
             startActivity(new Intent(activity, ExploreRootDirActivity.class));
             return true;
