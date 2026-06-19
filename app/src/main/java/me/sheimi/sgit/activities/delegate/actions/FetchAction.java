@@ -10,7 +10,6 @@ import me.sheimi.sgit.R;
 import me.sheimi.sgit.activities.RepoDetailActivity;
 import me.sheimi.sgit.database.models.Repo;
 import me.sheimi.sgit.dialogs.DummyDialogListener;
-import me.sheimi.sgit.repo.tasks.repo.FetchTask;
 
 public class FetchAction extends RepoAction {
     public FetchAction(Repo repo, RepoDetailActivity activity) {
@@ -24,8 +23,7 @@ public class FetchAction extends RepoAction {
     }
 
     private void fetch(String[] remotes) {
-        final FetchTask fetchTask = new FetchTask(remotes, mRepo, mActivity.new ProgressCallback(R.string.fetch_msg_init));
-        fetchTask.executeTask();
+        mActivity.getRepoDetailViewModel().fetch(mRepo, remotes, mActivity.getString(R.string.fetch_msg_init));
     }
 
     private Dialog fetchDialog() {

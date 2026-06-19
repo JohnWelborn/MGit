@@ -18,8 +18,6 @@ import me.sheimi.android.views.SheimiDialogFragment;
 import me.sheimi.sgit.R;
 import me.sheimi.sgit.activities.RepoDetailActivity;
 import me.sheimi.sgit.database.models.Repo;
-import me.sheimi.sgit.repo.tasks.SheimiAsyncTask.AsyncTaskPostCallback;
-import me.sheimi.sgit.repo.tasks.repo.RebaseTask;
 
 public class RebaseAction extends RepoAction {
 
@@ -35,16 +33,8 @@ public class RebaseAction extends RepoAction {
         mActivity.closeOperationDrawer();
     }
 
-    private static void rebase(Repo repo, String branch,
-            final RepoDetailActivity activity) {
-        RebaseTask rebaseTask = new RebaseTask(repo, branch,
-                new AsyncTaskPostCallback() {
-                    @Override
-                    public void onPostExecute(Boolean isSuccess) {
-                        activity.reset();
-                    }
-                });
-        rebaseTask.executeTask();
+    private static void rebase(Repo repo, String branch, RepoDetailActivity activity) {
+        activity.getRepoDetailViewModel().rebase(repo, branch);
     }
 
     public static class RebaseDialog extends SheimiDialogFragment {

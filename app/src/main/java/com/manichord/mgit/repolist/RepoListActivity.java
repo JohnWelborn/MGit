@@ -3,7 +3,7 @@ package com.manichord.mgit.repolist;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -25,6 +25,7 @@ import com.manichord.mgit.ViewHelperKt;
 import com.manichord.mgit.clone.CloneViewModel;
 import com.manichord.mgit.common.OnActionClickListener;
 import com.manichord.mgit.permissions.PermissionsHelper;
+import com.manichord.mgit.tasks.Credentials;
 import com.manichord.mgit.transport.MGitHttpConnectionFactory;
 
 import java.io.File;
@@ -45,8 +46,6 @@ import me.sheimi.sgit.database.models.Repo;
 import me.sheimi.sgit.databinding.ActivityMainBinding;
 import me.sheimi.sgit.dialogs.DummyDialogListener;
 import me.sheimi.sgit.dialogs.ImportLocalRepoDialog;
-import me.sheimi.sgit.repo.tasks.repo.CloneTask;
-import me.sheimi.sgit.repo.tasks.repo.PullTask;
 import me.sheimi.sgit.ssh.PrivateKeyUtils;
 import timber.log.Timber;
 
@@ -54,6 +53,8 @@ public class RepoListActivity extends SheimiFragmentActivity {
 
     private Context mContext;
     private RepoListAdapter mRepoListAdapter;
+    private RepoListViewModel mRepoListViewModel;
+    private CloneViewModel mCloneViewModel;
 
     private static final int REQUEST_IMPORT_REPO = 0;
     private boolean mStoragePermissionPromptShown = false;
@@ -68,8 +69,10 @@ public class RepoListActivity extends SheimiFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        RepoListViewModel viewModel = ViewModelProviders.of(this).get(RepoListViewModel.class);
-        CloneViewModel cloneViewModel = ViewModelProviders.of(this).get(CloneViewModel.class);
+        mRepoListViewModel = new ViewModelProvider(this).get(RepoListViewModel.class);
+        mCloneViewModel = new ViewModelProvider(this).get(CloneViewModel.class);
+        CloneViewModel cloneViewModel = mCloneViewModel;
+        RepoListViewModel viewModel = mRepoListViewModel;
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         binding.setLifecycleOwner(this);
@@ -84,6 +87,26 @@ public class RepoListActivity extends SheimiFragmentActivity {
                     hideCloneView();
                 }
             }
+        });
+
+        mCloneViewModel.getCredentialRequest().observe(this, request -> {
+            if (request == null) return;
+            promptForPassword(new SheimiFragmentActivity.OnPasswordEntered() {
+                @Override
+                public void onClicked(String username, String password, boolean savePassword) {
+                    request.resolve(new Credentials(username, password, savePassword));
+                }
+                @Override
+                public void onCanceled() {
+                    request.resolve(null);
+                }
+            }, (String) null);
+            mCloneViewModel.clearCredentialRequest();
+        });
+        mCloneViewModel.getCloneError().observe(this, error -> {
+            if (error == null) return;
+            showToastMessage(R.string.error_clone_failed);
+            mCloneViewModel.clearCloneError();
         });
 
         PrivateKeyUtils.migratePrivateKeys();
@@ -134,9 +157,7 @@ public class RepoListActivity extends SheimiFragmentActivity {
                 } else {
                     final String cloningStatus = getString(R.string.cloning);
                     Repo mRepo = Repo.createRepo(repoName, repoUrlBuilder.toString(), cloningStatus);
-                    Boolean isRecursive = true;
-                    CloneTask task = new CloneTask(mRepo, true, cloningStatus, null);
-                    task.executeTask();
+                    mCloneViewModel.startClone(mRepo, true, cloningStatus);
                 }
             }
         }
@@ -178,11 +199,13 @@ public class RepoListActivity extends SheimiFragmentActivity {
                 return true;
             case R.id.action_pull_all:
                 List<Repo> repos = Repo.getRepoList(this, RepoDbManager.queryAllRepo());
+                List<Repo> reposWithRemote = new java.util.ArrayList<>();
                 for (Repo repo : repos) {
                     if (repo.getRemoteURL() != null && !repo.getRemoteURL().isEmpty()) {
-                        new PullTask(repo, "origin", false, null).executeTask();
+                        reposWithRemote.add(repo);
                     }
                 }
+                mRepoListViewModel.pullAll(reposWithRemote);
                 Toast.makeText(this, R.string.pull_msg_init, Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.action_import_repo:

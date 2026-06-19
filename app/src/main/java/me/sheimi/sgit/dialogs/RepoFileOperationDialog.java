@@ -6,13 +6,12 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 
-import com.manichord.mgit.tasks.repo.UpdateIndexTask;
+import com.manichord.mgit.tasks.repo.DeleteType;
+import com.manichord.mgit.tasks.repo.UpdateIndexOperation;
 
 import me.sheimi.android.views.SheimiDialogFragment;
 import me.sheimi.sgit.R;
 import me.sheimi.sgit.activities.RepoDetailActivity;
-
-import static me.sheimi.sgit.repo.tasks.repo.DeleteFileFromRepoTask.DeleteOperationType;
 
 /**
  * Created by sheimi on 8/16/13.
@@ -58,24 +57,24 @@ public class RepoFileOperationDialog extends SheimiDialogFragment {
                             showRemoveFileMessageDialog(R.string.dialog_file_delete,
                                 R.string.dialog_file_delete_msg,
                                 R.string.label_delete,
-                                DeleteOperationType.DELETE);
+                                DeleteType.DELETE);
                             break;
                         case REMOVE_CACHED:
                             showRemoveFileMessageDialog(R.string.dialog_file_remove_cached,
                                 R.string.dialog_file_remove_cached_msg,
                                 R.string.label_delete,
-                                DeleteOperationType.REMOVE_CACHED);
+                                DeleteType.REMOVE_CACHED);
                             break;
                         case REMOVE_FORCE:
                             showRemoveFileMessageDialog(R.string.dialog_file_remove_force,
                                 R.string.dialog_file_remove_force_msg,
                                 R.string.label_delete,
-                                DeleteOperationType.REMOVE_FORCE);
+                                DeleteType.REMOVE_FORCE);
                             break;
                         case MAKE_EXECUTABLE:
                         case MAKE_NOT_EXECUTABLE:
                             final boolean newExecutableState = which == MAKE_EXECUTABLE;
-                            mActivity.getRepoDelegate().updateIndex(mFilePath, UpdateIndexTask.Companion.calculateNewMode(newExecutableState));
+                            mActivity.getRepoDelegate().updateIndex(mFilePath, UpdateIndexOperation.INSTANCE.calculateNewMode(newExecutableState));
                             break;
                     }
                 }
@@ -84,7 +83,7 @@ public class RepoFileOperationDialog extends SheimiDialogFragment {
         return builder.create();
     }
 
-    private void showRemoveFileMessageDialog(int dialog_title, int dialog_msg, int dialog_positive_button, final DeleteOperationType deleteOperationType) {
+    private void showRemoveFileMessageDialog(int dialog_title, int dialog_msg, int dialog_positive_button, final DeleteType deleteType) {
         showMessageDialog(dialog_title,
                 dialog_msg,
                 dialog_positive_button,
@@ -96,7 +95,7 @@ public class RepoFileOperationDialog extends SheimiDialogFragment {
 
                         mActivity.getRepoDelegate()
                                 .deleteFileFromRepo(
-                                        mFilePath, deleteOperationType);
+                                        mFilePath, deleteType);
                     }
                 });
     }

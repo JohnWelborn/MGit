@@ -13,9 +13,12 @@ import android.widget.AdapterView;
 import java.io.File;
 import java.io.FileFilter;
 
+import androidx.lifecycle.ViewModelProvider;
+
+import com.manichord.mgit.tasks.repo.InitLocalViewModel;
+
 import me.sheimi.sgit.R;
 import me.sheimi.sgit.database.models.Repo;
-import me.sheimi.sgit.repo.tasks.repo.InitLocalTask;
 
 public class ImportRepositoryActivity extends FileExplorerActivity {
 
@@ -98,8 +101,7 @@ public class ImportRepositoryActivity extends FileExplorerActivity {
 
         Repo repo = Repo.createRepo(localPath, "local repository", getString(R.string.importing));
 
-        InitLocalTask task = new InitLocalTask(repo);
-        task.executeTask();
+        new ViewModelProvider(this).get(InitLocalViewModel.class).startInitLocal(repo);
         finish();
     }
 }

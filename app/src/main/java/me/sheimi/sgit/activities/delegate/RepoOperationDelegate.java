@@ -1,13 +1,17 @@
 package me.sheimi.sgit.activities.delegate;
 
-import com.manichord.mgit.tasks.repo.UpdateIndexTask;
+import com.manichord.mgit.repodetail.RepoDetailViewModel;
+import com.manichord.mgit.tasks.repo.DeleteType;
+import com.manichord.mgit.tasks.repo.UpdateIndexOperation;
 
+import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.lib.Ref;
 
 import java.io.File;
 import java.util.ArrayList;
 
 import me.sheimi.android.utils.FsUtils;
+import me.sheimi.sgit.R;
 import me.sheimi.sgit.activities.RepoDetailActivity;
 import me.sheimi.sgit.activities.delegate.actions.AddAllAction;
 import me.sheimi.sgit.activities.delegate.actions.AddRemoteAction;
@@ -29,23 +33,17 @@ import me.sheimi.sgit.activities.delegate.actions.RemoveRemoteAction;
 import me.sheimi.sgit.activities.delegate.actions.RepoAction;
 import me.sheimi.sgit.activities.delegate.actions.ResetAction;
 import me.sheimi.sgit.database.models.Repo;
-import me.sheimi.sgit.repo.tasks.SheimiAsyncTask.AsyncTaskPostCallback;
-import me.sheimi.sgit.repo.tasks.repo.AddToStageTask;
-import me.sheimi.sgit.repo.tasks.repo.CheckoutFileTask;
-import me.sheimi.sgit.repo.tasks.repo.CheckoutTask;
-import me.sheimi.sgit.repo.tasks.repo.DeleteFileFromRepoTask;
-import me.sheimi.sgit.repo.tasks.repo.MergeTask;
-
-import static me.sheimi.sgit.repo.tasks.repo.DeleteFileFromRepoTask.DeleteOperationType;
 
 public class RepoOperationDelegate {
     private Repo mRepo;
     private RepoDetailActivity mActivity;
+    private RepoDetailViewModel mViewModel;
     private ArrayList<RepoAction> mActions = new ArrayList<>();
 
-    public RepoOperationDelegate(Repo repo, RepoDetailActivity activity) {
+    public RepoOperationDelegate(Repo repo, RepoDetailActivity activity, RepoDetailViewModel viewModel) {
         mRepo = repo;
         mActivity = activity;
+        mViewModel = viewModel;
         initActions();
     }
 
@@ -78,73 +76,39 @@ public class RepoOperationDelegate {
     }
 
     public void checkoutCommit(final String commitName) {
-        CheckoutTask checkoutTask = new CheckoutTask(mRepo, commitName,
-                null, new AsyncTaskPostCallback() {
-                    @Override
-                    public void onPostExecute(Boolean isSuccess) {
-                        mActivity.reset(commitName);
-                    }
-                });
-        checkoutTask.executeTask();
+        mViewModel.checkout(mRepo, commitName, null, commitName);
     }
 
     public void checkoutCommit(final String commitName, final String branch) {
-        CheckoutTask checkoutTask = new CheckoutTask(mRepo, commitName, branch,
-                new AsyncTaskPostCallback() {
-                    @Override
-                    public void onPostExecute(Boolean isSuccess) {
-                        mActivity.reset(branch);
-                    }
-                });
-        checkoutTask.executeTask();
+        mViewModel.checkout(mRepo, commitName, branch, branch);
     }
 
-    public void mergeBranch(final Ref commit, final String ffModeStr,
-            final boolean autoCommit) {
-        MergeTask mergeTask = new MergeTask(mRepo, commit, ffModeStr,
-                autoCommit, new AsyncTaskPostCallback() {
-                    @Override
-                    public void onPostExecute(Boolean isSuccess) {
-                        mActivity.reset();
-                    }
-                });
-        mergeTask.executeTask();
+    public void mergeBranch(final Ref commit, final String ffModeStr, final boolean autoCommit) {
+        String[] ffTypes = mActivity.getResources().getStringArray(R.array.merge_ff_type);
+        MergeCommand.FastForwardMode ffMode = MergeCommand.FastForwardMode.FF;
+        if (ffModeStr.equals(ffTypes[1])) ffMode = MergeCommand.FastForwardMode.FF_ONLY;
+        else if (ffModeStr.equals(ffTypes[2])) ffMode = MergeCommand.FastForwardMode.NO_FF;
+        mViewModel.merge(mRepo, commit, ffMode, autoCommit);
     }
 
     public void addToStage(String filepath) {
-        String relative = getRelativePath(filepath);
-        AddToStageTask addToStageTask = new AddToStageTask(mRepo, relative);
-        addToStageTask.executeTask();
+        mViewModel.addToStage(mRepo, getRelativePath(filepath));
     }
 
     public void checkoutFile(String filepath) {
-        String relative = getRelativePath(filepath);
-        CheckoutFileTask task = new CheckoutFileTask(mRepo, relative, null);
-        task.executeTask();
+        mViewModel.checkoutFile(mRepo, getRelativePath(filepath));
     }
 
-    public void deleteFileFromRepo(String filepath,DeleteOperationType deleteOperationType) {
-        String relative = getRelativePath(filepath);
-        DeleteFileFromRepoTask task = new DeleteFileFromRepoTask(mRepo,
-                relative,deleteOperationType, new AsyncTaskPostCallback() {
-                    @Override
-                    public void onPostExecute(Boolean isSuccess) {
-                        // TODO Auto-generated method stub
-                        mActivity.getFilesFragment().reset();
-                    }
-                });
-        task.executeTask();
+    public void deleteFileFromRepo(String filepath, DeleteType deleteType) {
+        mViewModel.deleteFile(mRepo, getRelativePath(filepath), deleteType);
+    }
+
+    public void updateIndex(final String filePath, final int newMode) {
+        mViewModel.updateIndex(mRepo, getRelativePath(filePath), newMode);
     }
 
     private String getRelativePath(String filepath) {
         File base = mRepo.getDir();
         return FsUtils.getRelativePath(new File(filepath), base);
-    }
-
-
-    public void updateIndex(final String mFilePath, final int newMode) {
-        String relative = getRelativePath(mFilePath);
-        UpdateIndexTask task = new UpdateIndexTask(mRepo, relative, newMode);
-        task.executeTask();
     }
 }

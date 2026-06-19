@@ -130,7 +130,6 @@ public class RepoListAdapter extends ArrayAdapter<Repo> implements
                 @Override
                 public void onClick(View v) {
                     repo.deleteRepo();
-                    repo.cancelTask();
                 }
             });
         } else if (repo.getLastCommitter() != null) {
@@ -284,7 +283,6 @@ public class RepoListAdapter extends ArrayAdapter<Repo> implements
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     repo.deleteRepo();
-                    repo.cancelTask();
                 }
             }
         );

@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import me.sheimi.android.activities.SheimiFragmentActivity;
+import me.sheimi.sgit.MGitApplication;
 import me.sheimi.sgit.R;
 
 /**
@@ -90,11 +91,11 @@ public class FsUtils {
      * @return
      */
     public static File getAppDir(boolean isExternal) {
-        SheimiFragmentActivity activeActivity = BasicFunctions.getActiveActivity();
+        MGitApplication app = MGitApplication.getContext();
         if (isExternal) {
-            return activeActivity.getExternalFilesDir(null);
+            return app.getExternalFilesDir(null);
         } else {
-            return activeActivity.getFilesDir();
+            return app.getFilesDir();
         }
     }
 

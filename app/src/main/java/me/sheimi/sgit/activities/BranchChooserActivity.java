@@ -23,13 +23,15 @@ import android.widget.Toast;
 import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
+import androidx.lifecycle.ViewModelProvider;
+
+import com.manichord.mgit.branchchooser.BranchChooserViewModel;
+
 import me.sheimi.android.activities.SheimiFragmentActivity;
 import me.sheimi.sgit.R;
 import me.sheimi.sgit.database.models.Repo;
 import me.sheimi.sgit.dialogs.RenameBranchDialog;
 import me.sheimi.sgit.exception.StopTaskException;
-import me.sheimi.sgit.repo.tasks.SheimiAsyncTask.AsyncTaskPostCallback;
-import me.sheimi.sgit.repo.tasks.repo.CheckoutTask;
 
 public class BranchChooserActivity extends SheimiFragmentActivity implements ActionMode.Callback {
     private static final String LOGTAG = BranchChooserActivity.class.getSimpleName();
@@ -40,6 +42,7 @@ public class BranchChooserActivity extends SheimiFragmentActivity implements Act
     private BranchTagListAdapter mAdapter;
     private boolean mInActionMode;
     private String mChosenCommit;
+    private BranchChooserViewModel mViewModel;
 
     @Override
     public void onDestroyActionMode(ActionMode mode) {
@@ -160,6 +163,16 @@ public class BranchChooserActivity extends SheimiFragmentActivity implements Act
         mBranchTagList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         setTitle(R.string.dialog_choose_branch_title);
 
+        mViewModel = new ViewModelProvider(this).get(BranchChooserViewModel.class);
+        mViewModel.getCheckoutDone().observe(this, done -> finish());
+        mViewModel.getErrorEvent().observe(this, error -> {
+            if (error != null) {
+                mLoadding.setVisibility(View.GONE);
+                mBranchTagList.setVisibility(View.VISIBLE);
+                showToastMessage(R.string.error_unknown);
+            }
+        });
+
         refreshList();
 
         mBranchTagList
@@ -168,16 +181,9 @@ public class BranchChooserActivity extends SheimiFragmentActivity implements Act
                     public void onItemClick(AdapterView<?> adapterView,
                                             View view, int position, long id) {
                         String commitName = mAdapter.getItem(position);
-                        CheckoutTask checkoutTask = new CheckoutTask(mRepo, commitName, null,
-                                new AsyncTaskPostCallback() {
-                                    @Override
-                                    public void onPostExecute(Boolean isSuccess) {
-                                        finish();
-                                    }
-                                });
                         mLoadding.setVisibility(View.VISIBLE);
                         mBranchTagList.setVisibility(View.GONE);
-                        checkoutTask.executeTask();
+                        mViewModel.checkout(mRepo, commitName);
                     }
                 });
 

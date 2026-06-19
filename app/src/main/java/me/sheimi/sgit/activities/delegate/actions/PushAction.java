@@ -18,7 +18,6 @@ import me.sheimi.sgit.R;
 import me.sheimi.sgit.activities.RepoDetailActivity;
 import me.sheimi.sgit.database.models.Repo;
 import me.sheimi.sgit.dialogs.DummyDialogListener;
-import me.sheimi.sgit.repo.tasks.repo.PushTask;
 
 public class PushAction extends RepoAction {
 
@@ -41,9 +40,8 @@ public class PushAction extends RepoAction {
 
     public static void push(Repo repo, RepoDetailActivity activity,
             String remote, boolean pushAll, boolean forcePush) {
-        PushTask pushTask = new PushTask(repo, remote, pushAll, forcePush,
-                activity.new ProgressCallback(R.string.push_msg_init));
-        pushTask.executeTask();
+        activity.getRepoDetailViewModel().push(repo, remote, pushAll, forcePush,
+                activity.getString(R.string.push_msg_init));
     }
 
     public static class PushDialog extends SheimiDialogFragment {

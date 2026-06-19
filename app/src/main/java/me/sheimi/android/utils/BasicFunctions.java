@@ -53,18 +53,8 @@ public class BasicFunctions {
         im.displayImage(avatarUri, imageView);
     }
 
-    private static SheimiFragmentActivity mActiveActivity;
-
-    public static SheimiFragmentActivity getActiveActivity() {
-        return mActiveActivity;
-    }
-
-    public static void setActiveActivity(SheimiFragmentActivity activity) {
-        mActiveActivity = activity;
-    }
-
     public static ImageLoader getImageLoader() {
-        return getActiveActivity().getImageLoader();
+        return ImageLoader.getInstance();
     }
 
     public static void showError(@NonNull @NotNull SheimiFragmentActivity activity, @StringRes final int errorTitleRes, @StringRes final int errorRes) {

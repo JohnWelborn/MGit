@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import me.sheimi.android.utils.BasicFunctions;
+import me.sheimi.sgit.MGitApplication;
 
 /**
  * Manage entries in the persisted database tracking local repo metadata.
@@ -33,7 +33,7 @@ public class RepoDbManager {
 
     private static RepoDbManager getInstance() {
         if (mInstance == null) {
-            mInstance = new RepoDbManager(BasicFunctions.getActiveActivity());
+            mInstance = new RepoDbManager(MGitApplication.getContext());
         }
         return mInstance;
     }

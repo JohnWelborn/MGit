@@ -10,14 +10,16 @@ import android.widget.EditText;
 
 import java.io.File;
 
+import androidx.lifecycle.ViewModelProvider;
+
+import com.manichord.mgit.repolist.RepoListActivity;
+import com.manichord.mgit.tasks.repo.InitLocalViewModel;
+
 import me.sheimi.android.views.SheimiDialogFragment;
 import me.sheimi.sgit.MGitApplication;
 import me.sheimi.sgit.R;
-import com.manichord.mgit.repolist.RepoListActivity;
-
 import me.sheimi.sgit.database.models.Repo;
 import me.sheimi.sgit.preference.PreferenceHelper;
-import me.sheimi.sgit.repo.tasks.repo.InitLocalTask;
 
 /**
  * Created by sheimi on 8/24/13.
@@ -96,8 +98,7 @@ public class InitDialog extends SheimiDialogFragment implements
         localPath = mLocalPath.getText().toString().trim();
         mRepo = Repo.createRepo(localPath, "local repository", getString(R.string.initialising));
 
-        InitLocalTask task = new InitLocalTask(mRepo);
-        task.executeTask();
+        new ViewModelProvider(mActivity).get(InitLocalViewModel.class).startInitLocal(mRepo);
 
         dismiss();
     }

@@ -4,8 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.SparseArray;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -34,7 +32,6 @@ import me.sheimi.sgit.database.RepoContract;
 import me.sheimi.sgit.database.RepoDbManager;
 import me.sheimi.sgit.exception.StopTaskException;
 import me.sheimi.sgit.preference.PreferenceHelper;
-import me.sheimi.sgit.repo.tasks.repo.RepoOpTask;
 import timber.log.Timber;
 
 /**
@@ -75,8 +72,6 @@ public class Repo implements Comparable<Repo>, Serializable {
     public static final String DOT_GIT_DIR = ".git";
     public static final String EXTERNAL_PREFIX = "external://";
     public static final String REPO_DIR = "repo";
-
-    private static SparseArray<RepoOpTask> mRepoTasks = new SparseArray<RepoOpTask>();
 
     public Repo(Cursor cursor) {
         mID = RepoContract.getRepoID(cursor);
@@ -192,28 +187,6 @@ public class Repo implements Comparable<Repo>, Serializable {
 
     public void setPassword(String password) {
         mPassword = password;
-    }
-
-    public void cancelTask() {
-        RepoOpTask task = mRepoTasks.get(getID());
-        if (task == null)
-            return;
-        task.cancelTask();
-        removeTask(task);
-    }
-
-    public boolean addTask(RepoOpTask task) {
-        if (mRepoTasks.get(getID()) != null)
-            return false;
-        mRepoTasks.put(getID(), task);
-        return true;
-    }
-
-    public void removeTask(RepoOpTask task) {
-        RepoOpTask runningTask = mRepoTasks.get(getID());
-        if (runningTask == null || runningTask != task)
-            return;
-        mRepoTasks.remove(getID());
     }
 
     public void updateStatus(String status) {

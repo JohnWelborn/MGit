@@ -4,8 +4,6 @@ import me.sheimi.android.activities.SheimiFragmentActivity.OnEditTextDialogClick
 import me.sheimi.sgit.R;
 import me.sheimi.sgit.activities.RepoDetailActivity;
 import me.sheimi.sgit.database.models.Repo;
-import me.sheimi.sgit.repo.tasks.SheimiAsyncTask.AsyncTaskPostCallback;
-import me.sheimi.sgit.repo.tasks.repo.CherryPickTask;
 
 public class CherryPickAction extends RepoAction {
 
@@ -28,13 +26,7 @@ public class CherryPickAction extends RepoAction {
     }
 
     public void cherrypick(String commit) {
-        CherryPickTask task = new CherryPickTask(mRepo, commit, new AsyncTaskPostCallback() {
-            @Override
-            public void onPostExecute(Boolean isSuccess) {
-                mActivity.reset();
-            }
-        });
-        task.executeTask();
+        mActivity.getRepoDetailViewModel().cherryPick(mRepo, commit);
     }
 
 }

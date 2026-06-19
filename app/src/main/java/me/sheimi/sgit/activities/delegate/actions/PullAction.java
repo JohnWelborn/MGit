@@ -17,7 +17,6 @@ import me.sheimi.sgit.R;
 import me.sheimi.sgit.activities.RepoDetailActivity;
 import me.sheimi.sgit.database.models.Repo;
 import me.sheimi.sgit.dialogs.DummyDialogListener;
-import me.sheimi.sgit.repo.tasks.repo.PullTask;
 
 public class PullAction extends RepoAction {
 
@@ -27,7 +26,7 @@ public class PullAction extends RepoAction {
 
     @Override
     public void execute() {
-	Set<String> remotes = mRepo.getRemotes();
+        Set<String> remotes = mRepo.getRemotes();
         if (remotes == null || remotes.isEmpty()) {
             mActivity.showToastMessage(R.string.alert_please_add_a_remote);
             return;
@@ -39,10 +38,9 @@ public class PullAction extends RepoAction {
     }
 
     private static void pull(Repo repo, RepoDetailActivity activity,
-			     String remote, boolean forcePull) {
-        PullTask pullTask = new PullTask(repo, remote, forcePull, activity.new ProgressCallback(
-                R.string.pull_msg_init));
-        pullTask.executeTask();
+                             String remote, boolean forcePull) {
+        activity.getRepoDetailViewModel().pull(repo, remote, forcePull,
+                activity.getString(R.string.pull_msg_init));
         activity.closeOperationDrawer();
     }
 
