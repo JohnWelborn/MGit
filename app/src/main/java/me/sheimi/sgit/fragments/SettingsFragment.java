@@ -3,13 +3,22 @@ package me.sheimi.sgit.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import androidx.core.app.TaskStackBuilder;
 
+import java.io.File;
+
+import me.sheimi.android.activities.SheimiFragmentActivity;
 import me.sheimi.android.utils.BasicFunctions;
 import me.sheimi.sgit.R;
+import me.sheimi.sgit.activities.explorer.ExploreRootDirActivity;
+import me.sheimi.sgit.database.models.Repo;
+import com.manichord.mgit.MGitApplication;
+import com.manichord.mgit.permissions.PermissionsHelper;
 import com.manichord.mgit.repolist.RepoListActivity;
 
 public class SettingsFragment extends PreferenceFragment {
@@ -31,6 +40,18 @@ public class SettingsFragment extends PreferenceFragment {
         final String gravatarPrefKey = getString(R.string.pref_key_use_gravatar);
         final String useEnglishPrefKey = getString(R.string.pref_key_use_english);
 
+        Preference repoRootPref = findPreference(getString(R.string.pref_key_repo_root_location));
+        updateRepoRootSummary(repoRootPref);
+        repoRootPref.setOnPreferenceClickListener(pref -> {
+            SheimiFragmentActivity activity = (SheimiFragmentActivity) getActivity();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                    && !PermissionsHelper.Companion.isExternalStorageManager()) {
+                activity.checkAndRequestFullStoragePermission();
+            }
+            startActivity(new Intent(activity, ExploreRootDirActivity.class));
+            return true;
+        });
+
         mListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
@@ -50,16 +71,35 @@ public class SettingsFragment extends PreferenceFragment {
         };
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
         getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(mListener);
+        updateRepoRootSummary(findPreference(getString(R.string.pref_key_repo_root_location)));
+        Preference noticePref = findPreference("pref_key_repo_location_permission_notice");
+        if (noticePref != null) {
+            boolean needsNotice = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                    && !PermissionsHelper.Companion.isExternalStorageManager();
+            noticePref.setVisible(needsNotice);
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
         getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(mListener);
+    }
+
+    private void updateRepoRootSummary(Preference pref) {
+        MGitApplication app = (MGitApplication) getActivity().getApplicationContext();
+        File root = app.getPrefenceHelper().getRepoRoot();
+        if (root != null) {
+            pref.setSummary(root.getAbsolutePath());
+        } else {
+            File defaultRoot = getActivity().getExternalFilesDir(null);
+            pref.setSummary(defaultRoot != null
+                    ? defaultRoot.getAbsolutePath() + "/" + Repo.REPO_DIR
+                    : "");
+        }
     }
 }
