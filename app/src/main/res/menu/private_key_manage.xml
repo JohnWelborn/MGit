@@ -11,6 +11,7 @@
             app:showAsAction="ifRoom"/>
     <item
             android:id="@+id/action_paste_key"
+            android:icon="@drawable/ic_content_paste"
             android:title="@string/action_paste_private_key"
-            app:showAsAction="never"/>
+            app:showAsAction="ifRoom"/>
 </menu>
