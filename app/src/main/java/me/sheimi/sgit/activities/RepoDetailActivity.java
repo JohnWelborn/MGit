@@ -138,6 +138,9 @@ public class RepoDetailActivity extends SheimiFragmentActivity {
             }
             mRepoDetailViewModel.clearError();
         });
+        mRepoDetailViewModel.getCheckedOutName().observe(this, name -> {
+            if (name != null) reset(name);
+        });
     }
 
     public RepoDetailViewModel getRepoDetailViewModel() {

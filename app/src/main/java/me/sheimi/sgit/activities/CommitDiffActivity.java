@@ -26,14 +26,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import androidx.lifecycle.ViewModelProvider;
+
+import com.manichord.mgit.repodetail.CommitDiffViewModel;
+
 import me.sheimi.android.activities.SheimiFragmentActivity;
 import me.sheimi.android.utils.CodeGuesser;
 import me.sheimi.android.utils.FsUtils;
 import me.sheimi.android.utils.Profile;
 import me.sheimi.sgit.R;
 import me.sheimi.sgit.database.models.Repo;
-import me.sheimi.sgit.repo.tasks.repo.CommitDiffTask;
-import me.sheimi.sgit.repo.tasks.repo.CommitDiffTask.CommitDiffResult;
 
 public class CommitDiffActivity extends SheimiFragmentActivity {
 
@@ -51,6 +53,7 @@ public class CommitDiffActivity extends SheimiFragmentActivity {
     private RevCommit mCommit;
     private List<String> mDiffStrs;
     private List<DiffEntry> mDiffEntries;
+    private CommitDiffViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +74,19 @@ public class CommitDiffActivity extends SheimiFragmentActivity {
             title += " : " + Repo.getCommitDisplayName(mOldCommit);
 
         setTitle(getString(R.string.title_activity_commit_diff) + title);
+
+        mViewModel = new ViewModelProvider(this).get(CommitDiffViewModel.class);
+        mViewModel.getDiffResult().observe(this, data -> {
+            mDiffEntries = data.getEntries();
+            mDiffStrs = data.getDiffs();
+            mCommit = data.getCommit();
+            mLoading.setVisibility(View.GONE);
+            mDiffContent.loadUrl(CodeGuesser.wrapUrlScript("notifyEntriesReady();"));
+        });
+        mViewModel.getErrorEvent().observe(this, error -> {
+            if (error != null) showToastMessage(R.string.error_diff_failed);
+        });
+
         loadFileContent();
     }
 
@@ -244,19 +260,7 @@ public class CommitDiffActivity extends SheimiFragmentActivity {
         @JavascriptInterface
         public void getDiffEntries() {
             String oldCommit = mOldCommit != null ? mOldCommit : (mNewCommit + "^");
-            CommitDiffTask diffTask = new CommitDiffTask(mRepo, oldCommit,
-                    mNewCommit, new CommitDiffResult() {
-                @Override
-                public void pushResult(List<DiffEntry> diffEntries,
-                                       List<String> diffStrs, RevCommit commit) {
-                    mDiffEntries = diffEntries;
-                    mDiffStrs = diffStrs;
-                    mCommit = commit;
-                    mLoading.setVisibility(View.GONE);
-                    mDiffContent.loadUrl(CodeGuesser.wrapUrlScript("notifyEntriesReady();"));
-                }
-            }, mShowDescription);
-            diffTask.executeTask();
+            mViewModel.loadDiff(mRepo, oldCommit, mNewCommit, mShowDescription);
         }
 
         @JavascriptInterface

@@ -10,8 +10,6 @@ import me.sheimi.android.activities.SheimiFragmentActivity;
 import me.sheimi.android.utils.BasicFunctions;
 import me.sheimi.sgit.R;
 import me.sheimi.sgit.database.models.Repo;
-import me.sheimi.sgit.repo.tasks.repo.GetCommitTask;
-import me.sheimi.sgit.repo.tasks.repo.GetCommitTask.GetCommitCallback;
 
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -270,24 +268,14 @@ public class CommitsListAdapter extends BaseAdapter {
         }
     }
 
-    public void resetCommit() {
-        clear();
-        GetCommitTask getCommitTask = new GetCommitTask(mRepo, mFile,
-                new GetCommitCallback() {
-
-                    @Override
-                    public void postCommits(List<RevCommit> commits) {
-                        if (commits != null) {
-                            // TODO why == null
-                            synchronized (mProgressLock) {
-                                stopFiltering();
-                                mAll = new ArrayList<>(commits);
-                                doFiltering();
-                            }
-                        }
-                    }
-                });
-        getCommitTask.executeTask();
+    public void setCommits(List<RevCommit> commits) {
+        if (commits != null) {
+            synchronized (mProgressLock) {
+                stopFiltering();
+                mAll = new ArrayList<>(commits);
+                doFiltering();
+            }
+        }
     }
 
     private static class CommitsListItemHolder {

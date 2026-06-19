@@ -1,12 +1,5 @@
 package me.sheimi.sgit.fragments;
 
-import me.sheimi.android.activities.SheimiFragmentActivity.OnBackClickListener;
-import me.sheimi.sgit.R;
-import me.sheimi.sgit.activities.CommitDiffActivity;
-import me.sheimi.sgit.database.models.Repo;
-import me.sheimi.sgit.repo.tasks.repo.StatusTask;
-import me.sheimi.sgit.repo.tasks.repo.StatusTask.GetStatusCallback;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,6 +8,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.lifecycle.ViewModelProvider;
+
+import com.manichord.mgit.repodetail.RepoDetailViewModel;
+
+import me.sheimi.android.activities.SheimiFragmentActivity.OnBackClickListener;
+import me.sheimi.sgit.R;
+import me.sheimi.sgit.activities.CommitDiffActivity;
+import me.sheimi.sgit.database.models.Repo;
 
 /**
  * Created by sheimi on 8/5/13.
@@ -65,6 +67,16 @@ public class StatusFragment extends RepoDetailFragment {
                 showDiff("dircache", "filetree");
             }
         });
+
+        RepoDetailViewModel vm = new ViewModelProvider(requireActivity()).get(RepoDetailViewModel.class);
+        vm.getStatusText().observe(getViewLifecycleOwner(), status -> {
+            if (mStatus != null && mLoadding != null) {
+                mStatus.setText(status);
+                mLoadding.setVisibility(View.GONE);
+                mStatus.setVisibility(View.VISIBLE);
+            }
+        });
+
         reset();
         return v;
     }
@@ -85,15 +97,7 @@ public class StatusFragment extends RepoDetailFragment {
             return;
         mLoadding.setVisibility(View.VISIBLE);
         mStatus.setVisibility(View.GONE);
-        StatusTask task = new StatusTask(mRepo, new GetStatusCallback() {
-            @Override
-            public void postStatus(String result) {
-                mStatus.setText(result);
-                mLoadding.setVisibility(View.GONE);
-                mStatus.setVisibility(View.VISIBLE);
-            }
-        });
-        task.executeTask();
+        new ViewModelProvider(requireActivity()).get(RepoDetailViewModel.class).loadStatus(mRepo);
     }
 
     @Override

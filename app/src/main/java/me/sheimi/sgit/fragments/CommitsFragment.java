@@ -5,6 +5,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import androidx.lifecycle.ViewModelProvider;
+
+import com.manichord.mgit.repodetail.RepoDetailViewModel;
+
 import me.sheimi.android.activities.SheimiFragmentActivity.OnBackClickListener;
 import me.sheimi.sgit.R;
 import me.sheimi.sgit.activities.CommitDiffActivity;
@@ -86,8 +90,12 @@ public class CommitsFragment extends BaseFragment implements
         mCommitsList = (ListView) v.findViewById(R.id.commitsList);
         mCommitsListAdapter = new CommitsListAdapter(getRawActivity(),
                 mChosenItem, mRepo, mFile);
-        mCommitsListAdapter.resetCommit();
         mCommitsList.setAdapter(mCommitsListAdapter);
+
+        RepoDetailViewModel vm = new ViewModelProvider(requireActivity()).get(RepoDetailViewModel.class);
+        vm.getCommits().observe(getViewLifecycleOwner(), commits -> {
+            mCommitsListAdapter.setCommits(commits);
+        });
 
         mCommitsList
                 .setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -151,7 +159,8 @@ public class CommitsFragment extends BaseFragment implements
     public void reset() {
         if (mCommitsListAdapter == null)
             return;
-        mCommitsListAdapter.resetCommit();
+        mCommitsListAdapter.clear();
+        new ViewModelProvider(requireActivity()).get(RepoDetailViewModel.class).loadCommits(mRepo, mFile);
     }
 
     public void enterDiffActionMode() {

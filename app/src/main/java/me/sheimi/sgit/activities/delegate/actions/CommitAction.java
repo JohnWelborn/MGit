@@ -5,8 +5,6 @@ import me.sheimi.sgit.R;
 import me.sheimi.sgit.activities.RepoDetailActivity;
 import me.sheimi.sgit.database.models.Repo;
 import me.sheimi.sgit.dialogs.DummyDialogListener;
-import me.sheimi.sgit.repo.tasks.SheimiAsyncTask.AsyncTaskPostCallback;
-import me.sheimi.sgit.repo.tasks.repo.CommitChangesTask;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -47,15 +45,7 @@ public class CommitAction extends RepoAction {
 
     private void commit(String commitMsg, boolean isAmend, boolean stageAll, String authorName,
                         String authorEmail) {
-        CommitChangesTask commitTask = new CommitChangesTask(mRepo, commitMsg,
-                isAmend, stageAll, authorName, authorEmail, new AsyncTaskPostCallback() {
-
-                    @Override
-                    public void onPostExecute(Boolean isSuccess) {
-                        mActivity.reset();
-                    }
-                });
-        commitTask.executeTask();
+        mActivity.getRepoDetailViewModel().commit(mRepo, commitMsg, isAmend, stageAll, authorName, authorEmail);
     }
 
     private class Author implements Comparable<Author> {
