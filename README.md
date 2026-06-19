@@ -87,25 +87,3 @@ repositories in the same local directory (can be changed in MGit settings)
 See [GPLv3](./LICENSE)
 
 All code written by `maks@manichord.com` can at your option also be used under the [MIT license](https://en.wikipedia.org/wiki/MIT_License).
-
-## Help
-
-If you want to help improve this project, contributions, especially translations are very welcome. Also contributions to documentation via the wiki for this repo are also most welcome!
-
-### Contributing code
-
-If you would like to contribute code, either a bugfix or a new feature, please make sure there is a open issue that addresses the new code. 
-**No Pull Requests** will be merged that do not reference an existing issue in the repo.
-
-Please use the Android Studio formatting settings set for this project in the repo.
-
-All strings visible to the user need to go into strings resource file. 
-
-#### Project Goals
-
-* Provide the best GUI git client available on any platform
-* Be usable on both phone, tablet and laptop form-factor devices
-
-#### Non-goals for the project
-
-* Support for proprietary vendor APIs (eg. Github)
