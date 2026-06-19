@@ -24,7 +24,6 @@ import java.io.IOException;
 
 import com.manichord.mgit.ssh.PrivateKeyGenerate;
 
-import me.sheimi.android.utils.BasicFunctions;
 import me.sheimi.android.utils.FsUtils;
 import me.sheimi.sgit.R;
 import me.sheimi.sgit.activities.ViewFileActivity;
@@ -38,7 +37,6 @@ public class PrivateKeyManageActivity extends FileExplorerActivity implements Ac
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        BasicFunctions.setActiveActivity(this);
         PrivateKeyUtils.migratePrivateKeys();
 
         super.onCreate(savedInstanceState);

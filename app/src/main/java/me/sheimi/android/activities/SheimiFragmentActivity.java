@@ -37,7 +37,6 @@ import java.io.File;
 import java.util.Locale;
 
 import me.sheimi.android.avatar.AvatarDownloader;
-import me.sheimi.android.utils.BasicFunctions;
 import me.sheimi.android.utils.Profile;
 import me.sheimi.sgit.R;
 import me.sheimi.sgit.dialogs.DummyDialogListener;
@@ -53,7 +52,6 @@ public class SheimiFragmentActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        BasicFunctions.setActiveActivity(this);
         setTheme(Profile.getThemeResource(getApplicationContext()));
         updateLocale(Profile.useEnglishLocale(getApplicationContext()));
     }
@@ -77,7 +75,6 @@ public class SheimiFragmentActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        BasicFunctions.setActiveActivity(this);
     }
 
     @Override
