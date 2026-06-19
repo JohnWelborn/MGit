@@ -127,6 +127,14 @@ public class CommitsFragment extends BaseFragment implements
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (mCommitsListAdapter != null) {
+            mCommitsListAdapter.close();
+        }
+    }
+
+    @Override
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         if (savedInstanceState == null) {
