@@ -1,5 +1,6 @@
 package com.manichord.mgit.repolist
 
+import androidx.lifecycle.viewModelScope
 import com.manichord.mgit.common.BaseViewModel
 import com.manichord.mgit.tasks.RepoProgress
 import com.manichord.mgit.tasks.repo.PullOperation
