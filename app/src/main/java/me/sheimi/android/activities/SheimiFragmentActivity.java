@@ -52,6 +52,7 @@ public class SheimiFragmentActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setupImageLoader();
         setTheme(Profile.getThemeResource(getApplicationContext()));
         updateLocale(Profile.useEnglishLocale(getApplicationContext()));
     }
@@ -75,6 +76,9 @@ public class SheimiFragmentActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (mImageLoader == null || !mImageLoader.isInited()) {
+            setupImageLoader();
+        }
     }
 
     @Override
