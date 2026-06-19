@@ -125,7 +125,7 @@ public class SheimiFragmentActivity extends AppCompatActivity {
         // app-specific storage is needed.
     }
 
-    protected void checkAndRequestFullStoragePermission() {
+    public void checkAndRequestFullStoragePermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !PermissionsHelper.Companion.isExternalStorageManager()) {
             showMessageDialog(
                 R.string.dialog_access_all_files_title,

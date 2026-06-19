@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import androidx.core.app.TaskStackBuilder;
 
@@ -17,7 +18,7 @@ import me.sheimi.android.utils.BasicFunctions;
 import me.sheimi.sgit.R;
 import me.sheimi.sgit.activities.explorer.ExploreRootDirActivity;
 import me.sheimi.sgit.database.models.Repo;
-import com.manichord.mgit.MGitApplication;
+import me.sheimi.sgit.MGitApplication;
 import com.manichord.mgit.permissions.PermissionsHelper;
 import com.manichord.mgit.repolist.RepoListActivity;
 
@@ -42,6 +43,7 @@ public class SettingsFragment extends PreferenceFragment {
 
         Preference repoRootPref = findPreference(getString(R.string.pref_key_repo_root_location));
         updateRepoRootSummary(repoRootPref);
+        updatePermissionNoticeVisibility();
         repoRootPref.setOnPreferenceClickListener(pref -> {
             SheimiFragmentActivity activity = (SheimiFragmentActivity) getActivity();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
@@ -76,18 +78,24 @@ public class SettingsFragment extends PreferenceFragment {
         super.onResume();
         getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(mListener);
         updateRepoRootSummary(findPreference(getString(R.string.pref_key_repo_root_location)));
-        Preference noticePref = findPreference("pref_key_repo_location_permission_notice");
-        if (noticePref != null) {
-            boolean needsNotice = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-                    && !PermissionsHelper.Companion.isExternalStorageManager();
-            noticePref.setVisible(needsNotice);
-        }
+        updatePermissionNoticeVisibility();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(mListener);
+    }
+
+    private void updatePermissionNoticeVisibility() {
+        Preference noticePref = findPreference("pref_key_repo_location_permission_notice");
+        if (noticePref == null) return;
+        boolean needsNotice = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                && !PermissionsHelper.Companion.isExternalStorageManager();
+        if (!needsNotice) {
+            PreferenceGroup parent = (PreferenceGroup) findPreference("pref_key_storage_root_location");
+            if (parent != null) parent.removePreference(noticePref);
+        }
     }
 
     private void updateRepoRootSummary(Preference pref) {
