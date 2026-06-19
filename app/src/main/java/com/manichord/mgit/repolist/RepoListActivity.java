@@ -204,7 +204,7 @@ public class RepoListActivity extends SheimiFragmentActivity {
             return;
         SearchListener searchListener = new SearchListener();
         MenuItemCompat.setOnActionExpandListener(searchItem, searchListener);
-        searchView.setIconifiedByDefault(true);
+        searchView.setIconifiedByDefault(false);
         searchView.setOnQueryTextListener(searchListener);
     }
 
